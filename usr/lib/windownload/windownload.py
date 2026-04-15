@@ -1,0 +1,134 @@
+import gi
+gi.require_version('Gtk', '4.0')
+from gi.repository import Gtk
+
+gi.require_version('Adap', '1')
+from gi.repository import Adap as Adw
+
+# Application ID
+app_id = "xyz.agatinos.windownload"
+
+class MainWindow(Adw.ApplicationWindow):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Informacion general de la ventana de aplicacion e icono opcional
+        self.set_title("Descarga apps Windows")
+        self.set_default_size(800, 620)
+        self.set_icon_name("application-x-addon")
+
+        # Crear el contenedor principal donde iran todos los controles (version Adw.ToastOverlay)
+        main_content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        self.toast_overlay = Adw.ToastOverlay()
+        self.toast_overlay.set_child(main_content_box)
+        self.set_content(self.toast_overlay)
+
+        # Crear el stack de vistas donde va el contenido de las paginas
+        # Permitir que el stack se expanda para llenar la ventana
+        content_stack = Adw.ViewStack()
+        content_stack.set_vexpand(True)
+        content_stack.set_hexpand(True)
+
+        # Crea y añade vistas al ViewStack para mostrar
+        # Para definir algo diferente se debe realizar lo siguiente:
+        # 1. Crear un archivo que llevara la clase a importar (tomar sample5_libadapta1
+        #  como muestra)
+        # 2. Dentro de dicha clase agregar todos los controles y/o metodos a ocupar segun 
+        # convenga
+        # 3. Llamar al stack de vistas con el metodo "add_titled_with_icon"
+        # 4. Proveer los parametros necesarios para la vista a crear en el siguiente orden:
+        # variable_stack_vistas.add_titled_with_icon(
+        #       nombre_clase_importada,
+        #       "id_de_la_pagina",
+        #       "Titulo de la pagina",
+        #       "icono_simbolico_xapp_xsi")
+        # Repetir los pasos 1 a 4 para cada vista adicional que se desee agregar
+        # Adicionalmente, verificar el orden en que se agregan las vistas, ya que este sera 
+        # el orden en que se muestren en la interfaz
+
+        content_stack.add_titled_with_icon(
+            None,
+            "list_apps",
+            "Listado apps",
+            "xsi-applications-wine-symbolic"
+        )
+
+        content_stack.add_titled_with_icon(
+            None,
+            "manual_apps",
+            "Descarga manual",
+            "xsi-folder-download-symbolic"
+        )
+
+        # Crear el ViewSwitcher (El título que cambia según la vista y tiene los botones)
+        switcher_title = Adw.ViewSwitcher()
+        switcher_title.set_stack(content_stack)
+        switcher_title.set_policy(Adw.ViewSwitcherPolicy.WIDE)
+
+        # Crear HeaderBar y asignarlo como el widget de título de la barra al centro
+        headerbar = Adw.HeaderBar()
+        headerbar.set_title_widget(switcher_title)
+
+        ## Añadiendo menu al final del headerbar y antes de añadirlo al contenedor principal
+        #demo_menu = DemoMenu()
+        #headerbar.pack_end(demo_menu)
+
+        # Lista desplazable de aplicaciones
+        # Este muestra el listado de aplicaciones disponibles para 
+        # descarga con su informacion. Este es añadido dentro de un 
+        # ScrolledWindow para que dicho control muestre barras de 
+        # desplazamiento conforme crece
+        self.app_listbox = Gtk.ListBox()
+        self.app_listbox.set_selection_mode(Gtk.SelectionMode.SINGLE)
+        app_scrollview = Gtk.ScrolledWindow()
+        app_scrollview.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        app_scrollview.set_hexpand(True)
+        app_scrollview.set_vexpand(True)
+        self.app_scrollview.set_child(self.app_listbox)
+
+        # Barra inferior de controles (+,-, descarga)
+        control_bar = Gtk.Box(halign=Gtk.Align.CENTER, spacing=6)
+        control_bar.set_margin_top(10)
+        control_bar.set_margin_bottom(10)
+
+        # Boton + para añadir
+        add_button = Gtk.Button()
+        add_button.set_icon_name("xsi-list-add-symbolic")
+        #add_button.connect("clicked", self.sm_toggle_log)
+
+        # Boton - para eliminar
+        remove_button = Gtk.Button()
+        remove_button.set_icon_name("xsi-list-remove-symbolic")
+        #remove_button.connect("clicked", self.sm_toggle_log)
+
+        # Boton para descarga
+        download_button = Gtk.Button()
+        download_button.set_icon_name("xsi-media-playback-symbolic")
+        #download_button.connect("clicked", self.sm_toggle_log)
+
+        # Añadir los botones a la barra de controles
+        control_bar.append(add_button)
+        control_bar.append(remove_button)
+        control_bar.append(download_button)
+
+        # Añadir los widgets al contenedor principal
+        main_content_box.append(headerbar)
+        main_content_box.append(app_scrollview)
+        main_content_box.append(control_bar)
+        main_content_box.append(content_stack)
+
+class MyApp(Adw.Application):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.connect('activate', self.on_activate)
+
+    def on_activate(self, app):
+        self.win = MainWindow(application=app)
+        self.win.present()
+
+def main():
+    app = MyApp(application_id=app_id)
+    app.run(None)
+
+if __name__ == "__main__":
+    main()
