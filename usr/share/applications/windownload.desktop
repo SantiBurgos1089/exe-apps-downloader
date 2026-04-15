@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Exe apps downloader
+Comment=Download Windows apps (exe, msi, others) from a site or URL given
+Exec=windownload
+Icon=application-x-addon
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=GNOME;GTK;Settings;System;XFCE;X-XFCE-SettingsDialog;X-XFCE-SystemSettings;
+X-KDE-SubstituteUID=true
+Name[en_US]=windownload.desktop
