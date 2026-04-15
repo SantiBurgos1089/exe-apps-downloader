@@ -5,6 +5,9 @@ from gi.repository import Gtk
 gi.require_version('Adap', '1')
 from gi.repository import Adap as Adw
 
+from applist_page import AppList
+from manual_page import ManualDownload
+
 # Application ID
 app_id = "xyz.agatinos.windownload"
 
@@ -17,11 +20,9 @@ class MainWindow(Adw.ApplicationWindow):
         self.set_default_size(800, 620)
         self.set_icon_name("application-x-addon")
 
-        # Crear el contenedor principal donde iran todos los controles (version Adw.ToastOverlay)
+        # Crear el contenedor principal donde iran todos los controles
         main_content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
-        self.toast_overlay = Adw.ToastOverlay()
-        self.toast_overlay.set_child(main_content_box)
-        self.set_content(self.toast_overlay)
+        self.set_content(main_content_box)
 
         # Crear el stack de vistas donde va el contenido de las paginas
         # Permitir que el stack se expanda para llenar la ventana
@@ -47,14 +48,14 @@ class MainWindow(Adw.ApplicationWindow):
         # el orden en que se muestren en la interfaz
 
         content_stack.add_titled_with_icon(
-            None,
+            AppList(),
             "list_apps",
             "Listado apps",
-            "xsi-applications-wine-symbolic"
+            "xsi-applications-administration-symbolic"
         )
 
         content_stack.add_titled_with_icon(
-            None,
+            ManualDownload(),
             "manual_apps",
             "Descarga manual",
             "xsi-folder-download-symbolic"
@@ -69,52 +70,8 @@ class MainWindow(Adw.ApplicationWindow):
         headerbar = Adw.HeaderBar()
         headerbar.set_title_widget(switcher_title)
 
-        ## Añadiendo menu al final del headerbar y antes de añadirlo al contenedor principal
-        #demo_menu = DemoMenu()
-        #headerbar.pack_end(demo_menu)
-
-        # Lista desplazable de aplicaciones
-        # Este muestra el listado de aplicaciones disponibles para 
-        # descarga con su informacion. Este es añadido dentro de un 
-        # ScrolledWindow para que dicho control muestre barras de 
-        # desplazamiento conforme crece
-        self.app_listbox = Gtk.ListBox()
-        self.app_listbox.set_selection_mode(Gtk.SelectionMode.SINGLE)
-        app_scrollview = Gtk.ScrolledWindow()
-        app_scrollview.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        app_scrollview.set_hexpand(True)
-        app_scrollview.set_vexpand(True)
-        self.app_scrollview.set_child(self.app_listbox)
-
-        # Barra inferior de controles (+,-, descarga)
-        control_bar = Gtk.Box(halign=Gtk.Align.CENTER, spacing=6)
-        control_bar.set_margin_top(10)
-        control_bar.set_margin_bottom(10)
-
-        # Boton + para añadir
-        add_button = Gtk.Button()
-        add_button.set_icon_name("xsi-list-add-symbolic")
-        #add_button.connect("clicked", self.sm_toggle_log)
-
-        # Boton - para eliminar
-        remove_button = Gtk.Button()
-        remove_button.set_icon_name("xsi-list-remove-symbolic")
-        #remove_button.connect("clicked", self.sm_toggle_log)
-
-        # Boton para descarga
-        download_button = Gtk.Button()
-        download_button.set_icon_name("xsi-media-playback-symbolic")
-        #download_button.connect("clicked", self.sm_toggle_log)
-
-        # Añadir los botones a la barra de controles
-        control_bar.append(add_button)
-        control_bar.append(remove_button)
-        control_bar.append(download_button)
-
         # Añadir los widgets al contenedor principal
         main_content_box.append(headerbar)
-        main_content_box.append(app_scrollview)
-        main_content_box.append(control_bar)
         main_content_box.append(content_stack)
 
 class MyApp(Adw.Application):
